@@ -1,0 +1,104 @@
+input, select, textarea {
+    width: 80%;
+    margin: 0 auto;
+    display: block;
+    font-size: 15px;
+    border-radius: 10px;
+}
+
+.left-menu-bar {
+    width: 300px;
+    height: 100%;
+    background-color: cadetblue;
+
+}
+
+body {
+    background-color: cadetblue !important;
+}
+
+.header-button {
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: cadetblue;
+    color: white;
+    border-radius: 10px;
+    width: max-content;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.menu-button {
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: white;
+    font-family: SansSerif;
+    margin: 0 10px 10px 10px;
+    border-radius: 10px;
+    border: 1px solid;
+    text-align: center;
+    font-weight: bold;
+    width: 200px;
+}
+
+.menu-button > a {
+    text-decoration: none;
+    color: black;
+}
+
+.medium-title {
+    font-family: SansSerif;
+    font-size: 25px;
+}
+
+.lower-title {
+    font-family: SansSerif;
+    font-size: 20px;
+}
+
+.m-10-px {
+    margin: 10px;
+}
+
+.white-color {
+    color: white;
+}
+
+.inline-menu-box {
+    display: inline-flex;
+    background-color: cadetblue;
+    width: 100%;
+    padding: 10px 10px 10px 0;
+}
+
+.tab-placeholder {
+    background-color: white;
+    width: 100%;
+}
+
+.modal-dialog.account-dialog {
+    max-width: 1000px !important;
+}
+
+.invalid-label {
+    color: red;
+    font-size: 10px;
+    display: none
+}
+
+.fc-toolbar {
+    font-size: 15px;
+}
+
+.modal-body {
+    padding-left: 50px !important;
+}
+
+.loading-icon {
+    position: absolute;
+    top: 30%;
+    left: 45%;
+    display: none;
+}
