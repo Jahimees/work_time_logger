@@ -48,6 +48,8 @@
 <jsp:include page="common/account_popup.jsp"/>
 <jsp:include page="common/document_popup.jsp"/>
 <jsp:include page="common/view_document_popup.jsp"/>
+<jsp:include page="common/change_account_popup.jsp"/>
+<jsp:include page="common/timesheet_day_popup.jsp"/>
 </body>
 
 </html>

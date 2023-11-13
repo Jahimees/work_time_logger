@@ -35,7 +35,7 @@
                         <input readonly>
                         <div class="row" style="margin-top: 10px">
                             <div class="col-md-5">Подтвержден</div>
-                            <input class="col-md-5" id="confirm-checkbox" type="checkbox" value="Подтвержден" readonly>
+                            <input class="col-md-5" id="confirm-checkbox" type="checkbox" value="Подтвержден" onclick="return false;">
                         </div>
                         <div style="margin-top: 20px">Загрузить файл</div>
                         <input id="document-input-file" type="file" accept="image/png,image/jpeg">

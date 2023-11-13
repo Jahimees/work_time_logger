@@ -1,16 +1,9 @@
-///Функционал HR'a
-///Для конкретного пользователя
-///удаление сотрудника
-///изменение сотрудника
-
 ///Функционал Начальника:
-///Загрузка своего отдела
+///Загрузка своего отдела в календаре
 ///Выбор дня работника и установка затраченного времени
 ///Если пропуск - галочка на причину (подтверждено или нет)
 
 ///Функционал работника:
-///Написать заявление
-///Добавить документ
 
 ///В конце: отчеты за месяц HR'у
 
@@ -20,6 +13,29 @@ let endCache;
 let accountWorkingDays = []
 let currentIdAccount;
 let accDocsCache = [];
+let spentTimeTypeCache = []
+
+function loadSpentTimeTypes() {
+
+    if (spentTimeTypeCache.length === 0) {
+        $.ajax({
+            method: "get",
+            url: "/spent-time-types",
+            contentType: "application/json",
+            async: false,
+            success: (data) => {
+                spentTimeTypeCache = data
+            },
+            error: () => {
+                $("#spentTimeModal").hide()
+                callMessagePopup("Ошибка", "Невозможно загрузить данные о типах затрат времени");
+            }
+        })
+        return spentTimeTypeCache;
+    } else {
+        return spentTimeTypeCache;
+    }
+}
 
 function loadCalendar() {
     $.ajax({
@@ -66,6 +82,7 @@ function convertToEvents(documents) {
         events.push({
             id: document.idDocument,
             title: document.text,
+            type: 'document',
             start: document.sinceDate,
             end: document.toDate
         })
@@ -80,8 +97,9 @@ var initializeCalendar = function (idAccount) {
     loadTimesheetDays(idAccount);
     accDocsCache = loadDocumentsForAccount(idAccount);
     const docsEvents = convertToEvents(accDocsCache);
+    // TODO ВСЕ SPENT TIMES
+    loadSpentTimes()
 
-    console.log(docsEvents)
     $('.calendar').fullCalendar('destroy');
     $('.calendar').fullCalendar({
         fontsize: '1px',
@@ -100,7 +118,7 @@ var initializeCalendar = function (idAccount) {
         slotLabelFormat: 'H:mm',
         defaultTimedEventDuration: '00:30:00',
         forceEventDuration: true,
-        eventBackgroundColor: '#523870',
+        eventBackgroundColor: 'cadetblue',
         height: screen.height - 170,
         timezone: 'Russia/Moscow',
         selectable: true,
@@ -122,16 +140,15 @@ var initializeCalendar = function (idAccount) {
             // console.log('undelsect');
         },
         eventClick: function (calEvent, jsEvent, view) {
-            obj = calEvent;
-            openDoc(calEvent);
+            if (calEvent.type === 'document') {
+                openDoc(calEvent);
+            }
         },
         dayRender: function (date, cell) {
             let dateObj = checkDateAndReturnIfPresent(date._d);
             if (dateObj) {
                 console.log(dateObj.startTime);
-                // cell.attr("id-working-day", dateObj.idWorkingDay)
-                // cell.attr("work-start", dateObj.workingDayStart);
-                // cell.attr("work-end", dateObj.workingDayEnd);
+                //Туть вставлять надо
                 cell.text(dateObj.startTime.substring(0, 5) + "-" + dateObj.endTime.substring(0, 5))
                 cell.css("background-color", "white").css("padding", "5px");
             } else {
@@ -146,18 +163,149 @@ var initializeCalendar = function (idAccount) {
     $('#calendar1').fullCalendar('option', 'height', $(window).height() - 250);
 }
 
-function fillTimesheetDay() {
+function openFillTimesheetDay() {
     if (typeof startCache === "undefined") {
         callMessagePopup("Ошибка", "Выберите день, который желаете заполнить");
         return;
     }
-    const workingDay = findWorkingDayByDate(startCache)
+    const timesheetDay = findWorkingDayByDate(startCache)
 
-    if (typeof workingDay === "undefined") {
+    if (typeof timesheetDay === "undefined") {
         callMessagePopup("Ошибка", "Невозможно редактировать день, который не назначен в графике как рабочий");
+        return;
     }
 
+    $("#timesheet-day-placeholder").text("День: " + new Date(timesheetDay.date).toLocaleDateString('ru'));
 
+    const spentTimeTypes = loadSpentTimeTypes();
+    const $spentTimeTypeSelect = $("#spent-time-type-select");
+
+    $spentTimeTypeSelect.html('');
+    spentTimeTypes.forEach(spentTimeType => {
+        const option = $("<option value='" + spentTimeType.idSpentTimeType + "'>" + spentTimeType.name + "</option>");
+        $spentTimeTypeSelect.append(option);
+    });
+
+    loadSpentTimes(timesheetDay.idTimesheetDay);
+    fillSpentTimeTable();
+
+    $("#confirm-spent-time-btn").on('click', () => {
+        const idSpentTimeType = $("#spent-time-type-select").val();
+        let spentTime = $("#spent-time-input").val();
+
+        if (!/^\d{1,3}(?:\.\d{1,2})?$/.test(spentTime)) {
+            console.log(/^\d{1,3}(?:\.\d{1})?$/.test(spentTime));
+            $("#spent-time-error-lbl").show()
+            return;
+        } else {
+            $("#spent-time-error-lbl").hide();
+        }
+        spentTime = parseFloat(spentTime);
+
+        createSpentTime(timesheetDay.idTimesheetDay, idSpentTimeType, spentTime)
+    })
+
+    console.log(timesheetDay);
+    $("#spentTimeModal").modal('show');
+}
+
+function createSpentTime(idTimesheetDay, idSpentTimeType, spentTime) {
+
+    const newSpentTime = {
+        timesheetDay: {
+            idTimesheetDay: idTimesheetDay
+        },
+        spentTimeType: {
+            idSpentTimeType: idSpentTimeType
+        },
+        spentTime: spentTime
+    }
+
+    $.ajax({
+        method: "post",
+        url: "/timesheet-days/" + idTimesheetDay + "/spent-times",
+        contentType: "application/json",
+        dataType: "json",
+        async: false,
+        data: JSON.stringify(newSpentTime),
+        success: (data) => {
+            $("#save-error").hide();
+            spentTimesCache.push(data);
+            setTimeout(fillSpentTimeTable(), 100);
+        },
+        error: () => {
+            $("#save-error").show();
+        }
+    })
+}
+
+let spentTimesCache;
+
+function loadSpentTimes(idTimesheetDay) {
+    $.ajax({
+        method: "get",
+        url: "/timesheet-days/" + idTimesheetDay + "/spent-times",
+        contentType: "application/json",
+        dataType: "json",
+        async: false,
+        success: (data) => {
+            spentTimesCache = data;
+        },
+        error: () => {
+
+            callMessagePopup("Ошибка", "Невозможно загрузить данные по выбранному дню")
+        }
+    })
+
+    return spentTimesCache
+}
+
+function deleteSpentTimeFromCache(idSpentTime) {
+    let index = -1;
+    spentTimesCache.forEach(spentTime => {
+        if (spentTime.idSpentTime === idSpentTime) {
+            index = spentTimesCache.indexOf(spentTime);
+        }
+    })
+
+    spentTimesCache.splice(index, 1);
+}
+
+function fillSpentTimeTable() {
+    const tableName = "spent_time"
+    const $dataTable = $("#" + tableName + "_table");
+
+    destroyAndInitDataTable(tableName, $dataTable)
+
+    spentTimesCache?.forEach(function (spentTime) {
+        addRowToSpentTimeDataTable(spentTime, tableName)
+    })
+}
+
+function addRowToSpentTimeDataTable(spentTime, tableId) {
+    const tableName = tableId ? tableId : "default";
+
+    $("#" + tableName + "_table").DataTable().row.add([
+        spentTime.spentTime,
+        spentTime.spentTimeType.name,
+        "<div class='save-button' onclick='deleteSpentTime(" + spentTime.idSpentTime + ")'>Удалить</div>"
+    ]).draw();
+}
+
+function deleteSpentTime(idSpentTime) {
+    $.ajax({
+        method: "delete",
+        url: "/spent-times/" + idSpentTime,
+        async: false,
+        success: () => {
+            deleteSpentTimeFromCache(idSpentTime);
+            fillSpentTimeTable();
+        },
+        error: () => {
+            $("#spentTimeModal").modal('hide');
+            callMessagePopup("Ошибка", "Удаление невозможно")
+        }
+    })
 }
 
 function findWorkingDayByDate(date) {
@@ -172,35 +320,36 @@ function findWorkingDayByDate(date) {
 }
 
 function appendButtons(idAccountEmployer) {
-    let button = $("<button id='update-working-date-btn' class='fc-button fc-state-default' type='button'" +
-        "onclick='changeWorkingDays()'>" +
-        "Рабочий/нерабочий</button>");
-
-
-    let warnWrongRange = $("<label id='working-time-warn' class='working-time-start-warn'" +
-        "style='display: none'>Начало рабочего дня не может быть позже конца рабочего дня!</label>");
-    let warnStart = $("<label id='working-time-start-warn' class='invalid-label'" +
-        "for='working-time-start'>Время начала неверное неверное!</label>");
-    let warnEnd = $("<label id='working-time-end-warn' class='invalid-label'" +
-        "for='working-time-end'>Время конца дня неверное!</label>");
-
-    let warnDiv = $("<div></div>").append(warnStart).append(warnEnd).append(warnWrongRange)
-    let div = $("<div data-tooltip='Задает для выбранной даты рабочее время' style='display: flex'></div>")
-    let workTimeStartInput = $("<input id='working-time-start' style='width: 50px' placeholder='9:00'>");
-    let workTimeEndInput = $("<input id='working-time-end' style='margin-left: 10px; width: 50px' placeholder='18:00'>");
-
-    div.append(workTimeStartInput).append(workTimeEndInput).append(warnDiv)
-
     const $calendar = $("#calendar1 .fc-right");
-    $calendar.append(div).append(button);
 
     const currentAccount = getAccountCache();
     const employerAccount = loadUserWithoutCaching(idAccountEmployer);
 
+    if (currentAccount.role.name === "ROLE_HR") {
+        let warnWrongRange = $("<label id='working-time-warn' class='working-time-start-warn'" +
+            "style='display: none'>Начало рабочего дня не может быть позже конца рабочего дня!</label>");
+        let warnStart = $("<label id='working-time-start-warn' class='invalid-label'" +
+            "for='working-time-start'>Время начала неверное неверное!</label>");
+        let warnEnd = $("<label id='working-time-end-warn' class='invalid-label'" +
+            "for='working-time-end'>Время конца дня неверное!</label>");
+
+        let warnDiv = $("<div></div>").append(warnStart).append(warnEnd).append(warnWrongRange)
+        let div = $("<div data-tooltip='Задает для выбранной даты рабочее время' style='display: flex'></div>")
+        let workTimeStartInput = $("<input id='working-time-start' style='width: 50px' placeholder='9:00'>");
+        let workTimeEndInput = $("<input id='working-time-end' style='margin-left: 10px; width: 50px' placeholder='18:00'>");
+
+        div.append(workTimeStartInput).append(workTimeEndInput).append(warnDiv)
+
+        let button = $("<button id='update-working-date-btn' class='fc-button fc-state-default' type='button'" +
+            "onclick='changeWorkingDays()'>" +
+            "Рабочий/нерабочий</button>");
+        $calendar.append(div).append(button);
+    }
+
     if (currentAccount.role.name === "ROLE_BOSS" &&
         currentAccount.department.idDepartment === employerAccount.department.idDepartment) {
         let buttonDay = $("<button id='fill-timesheet-day-brn' class='fc-button fc-state-default' type='button'" +
-            "onclick='fillTimesheetDay()'>" +
+            "onclick='openFillTimesheetDay()'>" +
             "Заполнить день</button>");
         $calendar.append(buttonDay);
     }

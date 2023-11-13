@@ -23,7 +23,7 @@ public class TimesheetDay implements CustomEntity {
     @Column(name = ID_TIMESHEET_DAY)
     private int idTimesheetDay;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ID_TIMESHEET)
     private Timesheet timesheet;
 

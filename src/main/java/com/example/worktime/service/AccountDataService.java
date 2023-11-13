@@ -1,7 +1,6 @@
 package com.example.worktime.service;
 
-import com.example.worktime.entity.Account;
-import com.example.worktime.entity.Department;
+import com.example.worktime.entity.*;
 import com.example.worktime.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.model.AlreadyExistsException;
@@ -45,7 +44,7 @@ public class AccountDataService {
         return accountRepository.findByUsername(username);
     }
 
-    public Account patchAccount(Account accountFromClient) {
+    public Account patchSelfAccount(Account accountFromClient) {
         Optional<Account> accountOptional = accountRepository.findById(accountFromClient.getIdAccount());
 
         if (accountOptional.isEmpty()) {
@@ -85,6 +84,69 @@ public class AccountDataService {
         return accountRepository.save(accountDb);
     }
 
+    public Account patchEmployerAccount(Account accountFromClient) {
+        Optional<Account> accountOptional = findById(accountFromClient.getIdAccount());
+
+        if (accountOptional.isEmpty()) {
+            throw new NotFoundException("Account not found");
+        }
+
+        Account accountFromDb = accountOptional.get();
+
+        if (accountFromClient.getEmployerDetails() != null) {
+            EmployerDetails employerDetailsFromClient = accountFromClient.getEmployerDetails();
+            EmployerDetails employerDetailsFromDb = accountFromDb.getEmployerDetails();
+
+            if (employerDetailsFromClient.getFirstName() != null
+            && !employerDetailsFromClient.getFirstName()
+                    .equals(employerDetailsFromDb.getFirstName())) {
+                employerDetailsFromDb.setFirstName(employerDetailsFromClient.getFirstName());
+            }
+
+            if (employerDetailsFromClient.getLastName() != null
+            && !employerDetailsFromClient.getLastName().equals(employerDetailsFromDb.getLastName())) {
+                employerDetailsFromDb.setLastName(employerDetailsFromClient.getLastName());
+            }
+
+            if (employerDetailsFromClient.getPhone() != null
+            && !employerDetailsFromClient.getPhone().equals(employerDetailsFromDb.getPhone())) {
+                employerDetailsFromDb.setPhone(employerDetailsFromClient.getPhone());
+            }
+
+            if (employerDetailsFromClient.getAddress() != null
+            && !employerDetailsFromClient.getAddress().equals(employerDetailsFromDb.getAddress())) {
+                employerDetailsFromDb.setAddress(employerDetailsFromClient.getAddress());
+            }
+        }
+
+        if (accountFromClient.getDepartment() != null
+                && accountFromClient.getDepartment().getIdDepartment()
+                != accountFromDb.getDepartment().getIdDepartment()) {
+
+            Department department = new Department();
+            department.setIdDepartment(accountFromClient.getDepartment().getIdDepartment());
+            accountFromDb.setDepartment(department);
+        }
+
+        if (accountFromClient.getRole() != null
+                && accountFromClient.getRole().getIdRole() != accountFromDb.getRole().getIdRole()) {
+
+            Role role = new Role();
+            role.setIdRole(accountFromClient.getRole().getIdRole());
+            accountFromDb.setRole(role);
+        }
+
+        if (accountFromClient.getPosition() != null
+                && accountFromClient.getPosition().getIdPosition() != accountFromDb.getPosition().getIdPosition()) {
+
+            Position position = new Position();
+            position.setIdPosition(accountFromClient.getPosition().getIdPosition());
+            accountFromDb.setPosition(position);
+        }
+
+        return accountRepository.saveAndFlush(accountFromDb);
+    }
+
     public Account createAccount(Account account) {
         if (accountRepository.existsByUsername(account.getUsername())) {
             throw new AlreadyExistsException("Account with the same username already exists");
@@ -95,5 +157,9 @@ public class AccountDataService {
         account.setPassword(bCryptPasswordEncoder.encode(account.getPassword()));
 
         return accountRepository.saveAndFlush(account);
+    }
+
+    public void deleteAccountById(int idAccount) {
+        accountRepository.deleteById(idAccount);
     }
 }

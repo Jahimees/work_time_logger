@@ -4,7 +4,7 @@
     <div class="modal-dialog account-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="accountModalLabel">Создание/Изменение аккаунта</h5>
+                <h5 class="modal-title" id="accountModalLabel">Создание аккаунта</h5>
                 <div class="close close-button" data-bs-dismiss="modal" aria-label="Закрыть">
                     <span aria-hidden="true">X</span>
                 </div>

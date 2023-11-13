@@ -112,6 +112,7 @@
                 callMessagePopup("Успех", "Данные успешно обновлены");
             },
             error: () => {
+                $("#createPositionModal").modal("hide");
                 callMessagePopup("Ошибка", "Данные не удалось изменить");
             }
         })

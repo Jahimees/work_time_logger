@@ -61,23 +61,38 @@ public class AccountRestController {
             }
         }
 
+        account.setIdAccount(idAccount);
+        Account patchedAccount;
         if (account.getUsername() != null || account.getPassword() != null) {
             if (customPrincipal.getIdAccount() != idAccount) {
                 return new ResponseEntity<>(new CustomResponseEntity(
                         HttpStatus.FORBIDDEN.value(),
                         "You cant change another account"
                 ), HttpStatus.FORBIDDEN);
+            } else {
+                patchedAccount = accountDataService.patchSelfAccount(account);
             }
+        } else {
+            patchedAccount = accountDataService.patchEmployerAccount(account);
         }
 
-        account.setIdAccount(idAccount);
-
-        return ResponseEntity.ok(accountDataService.patchAccount(account));
+        return ResponseEntity.ok(patchedAccount);
     }
 
     @PreAuthorize("hasRole('HR')")
     @PostMapping("/accounts")
     public ResponseEntity<CustomEntity> createAccount(@RequestBody Account account) {
         return ResponseEntity.ok(accountDataService.createAccount(account));
+    }
+
+    @PreAuthorize("hasRole('HR')")
+    @DeleteMapping("/accounts/{idAccount}")
+    public ResponseEntity<CustomEntity> deleteAccount(@PathVariable int idAccount) {
+
+        accountDataService.deleteAccountById(idAccount);
+        return new ResponseEntity<>(new CustomResponseEntity(
+                HttpStatus.OK.value(),
+                "Account deleted"
+        ), HttpStatus.OK);
     }
 }

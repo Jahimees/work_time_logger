@@ -22,6 +22,10 @@ public class TimesheetDayDataService {
     private final TimesheetDayRepository timesheetDayRepository;
     private final AccountDataService accountDataService;
 
+    public Optional<TimesheetDay> findById(int idTimesheetDay) {
+        return timesheetDayRepository.findById(idTimesheetDay);
+    }
+
     public List<TimesheetDay> findAllByIdAccount(int idAccount) {
         Optional<Account> accountOptional = accountDataService.findById(idAccount);
 

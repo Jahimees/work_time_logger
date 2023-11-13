@@ -15,7 +15,7 @@ public class SpentTime implements CustomEntity {
     private int idSpentTime;
 
     @ManyToOne
-    @JoinColumn(name = TIMESHEET_DAY)
+    @JoinColumn(name = ID_TIMESHEET_DAY)
     private TimesheetDay timesheetDay;
 
     @ManyToOne

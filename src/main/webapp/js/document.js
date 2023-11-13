@@ -94,8 +94,6 @@
             console.log("init")
             $("#confirm-document-btn").unbind();
             $("#confirm-document-btn").on("click", () => {
-                $("#loading-icon").show();
-                $("#documentModal").modal('hide')
 
                 const documentName = $("#document-name-input").val();
                 const dateStart = $("#date-start-input").val();
@@ -135,7 +133,8 @@
                 }
 
                 if (!flag) return;
-
+                $("#loading-icon").show();
+                $("#documentModal").modal('hide')
                 const documentType = $("#document-type-select").val();
 
                 const newDocObj = {
@@ -282,8 +281,8 @@
                 if (currentAccount.role.name === "ROLE_HR") {
                     patchDocument(currentAccount, document);
                 } else {
-                    if (document.accountOwner.department != currentAccount.department) {
-                        $("#confirm-view-document-btn").modal('hide');
+                    if (document.accountOwner.department.idDepartment != currentAccount.department.idDepartment) {
+                        $("#viewDocumentModal").modal('hide');
                         callMessagePopup("Ошибка", "Вы не можете подтверждать документы сотрудников другого отдела")
                     } else {
                         patchDocument(currentAccount, document);

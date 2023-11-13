@@ -17,8 +17,40 @@
         })
     }
 
+    function updateAccountCache(account) {
+        staffCache.forEach(acc => {
+            if (acc.idAccount = account.idAccount) {
+                acc.employerDetails = account.employerDetails;
+                acc.role = account.role;
+                acc.department = account.department;
+                acc.position = account.position;
+            }
+        })
+    }
+
+    function findAccountInCache(idAccount) {
+        let foundAccount;
+        staffCache.forEach(account => {
+            if (account.idAccount === idAccount) {
+                foundAccount = account;
+            }
+        })
+
+        return foundAccount;
+    }
+
     function addToStaffCache(staff) {
         staffCache.push(staff);
+    }
+
+    function deleteFromStaffCache(idAccount) {
+        let index;
+        staffCache.forEach(account => {
+            if (account.idAccount === idAccount) {
+                index = staffCache.indexOf(account);
+            }
+        })
+        staffCache.splice(index, 1);
     }
 
     function fillStaffTable() {
@@ -45,16 +77,132 @@
             departmentName ? departmentName : "Не назначен",
             positionName ? positionName : "Не назначен",
             phone ? phone : "Неизвестен",
-            "<div class='save-button'>Удалить</div>"
+            "<div onclick='callConfirmDeleteAccount(" + staff.idAccount + ")' class='save-button'>Удалить</div>",
+            "<div onclick='loadChangeAccountPopup(" + staff.idAccount + ")' class='save-button'>Открыть</div>"
         ]).draw();
+    }
 
+    function loadChangeAccountPopup(idAccount) {
+        $("#changeAccountModal").modal('show');
+        const chosenAccount = findAccountInCache(idAccount);
+        fillAccountPopupSelectors(false)
+
+        const $firstNameInput = $("#firstName-change-popup");
+        const $lastNameInput = $("#lastName-change-popup");
+        const $addressInput = $("#address-change-popup");
+        const $aboutInput = $("#about-change-popup");
+        const $phoneInput = $("#phone-change-popup");
+        const $departmentSelect = $("#department-change-select-popup");
+        const $positionSelect = $("#position-change-select-popup");
+        const $roleSelect = $("#role-change-select-popup");
+
+        $firstNameInput.val(chosenAccount.employerDetails.firstName);
+        $lastNameInput.val(chosenAccount.employerDetails.lastName);
+        $addressInput.val(chosenAccount.employerDetails.address);
+        $aboutInput.val(chosenAccount.employerDetails.about);
+        $phoneInput.val(chosenAccount.employerDetails.phone);
+        $departmentSelect.val(chosenAccount.department.idDepartment);
+        $positionSelect.val(chosenAccount.position.idPosition);
+        $roleSelect.val(chosenAccount.role.idRole);
+
+        $("#confirm-change-account-btn").unbind();
+        $("#confirm-change-account-btn").on('click', () => {
+            let flag = true;
+
+            if ($firstNameInput.val().trim().length < 1 || $firstNameInput.val().trim().length > 30) {
+                flag = false;
+                $("#error-change-firstname-lbl").show();
+            } else {
+                $("#error-change-firstname-lbl").hide();
+            }
+
+            if ($lastNameInput.val().trim().length < 1 || $lastNameInput.val().trim().length > 30) {
+                flag = false;
+                $("#error-change-lastname-lbl").show();
+            } else {
+                $("#error-change-lastname-lbl").hide();
+            }
+
+            if (!flag) {
+                return;
+            }
+
+            const newAccountData = {
+                employerDetails: {
+                    firstName: $firstNameInput.val().trim(),
+                    lastName: $lastNameInput.val().trim(),
+                    phone: $phoneInput?.val().trim(),
+                    address: $addressInput?.val().trim(),
+                    about: $aboutInput?.val().trim(),
+                },
+                department: {
+                    idDepartment: $departmentSelect.val()
+                },
+                position: {
+                    idPosition: $positionSelect.val()
+                },
+                role: {
+                    idRole: $roleSelect.val()
+                },
+            }
+
+            $.ajax({
+                method: "patch",
+                url: "/accounts/" + idAccount,
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(newAccountData),
+                success: (data) => {
+                    updateAccountCache(data)
+                    $("#changeAccountModal").modal('hide')
+                    callMessagePopup("Успех", "Данные пользователя успешно изменены. " +
+                        "Если Вы изменяли роль, то она вступит в силу при следующей авторизации.")
+                    fillStaffTable()
+                },
+                error: () => {
+                    $("#changeAccountModal").modal('hide')
+                    callMessagePopup("Ошибка", "Не удалось обновить пользователя")
+                }
+            })
+        })
+    }
+
+    function callConfirmDeleteAccount(idAccountToDelete) {
+        const currentAccount = getAccountCache();
+
+        if (currentAccount.idAccount === idAccountToDelete) {
+            callMessagePopup("Ошибка", "Вы не можете удалить самого себя!")
+            return;
+        }
+
+        callMessagePopup("Подтвердите действие", "Вы действительно хотите удалить аккаунт?")
+        $("#confirm-message-btn").on('click', () => {
+            deleteAccount(idAccountToDelete)
+        })
+    }
+
+    function deleteAccount(idAccount) {
+
+        $.ajax({
+            method: "delete",
+            url: "/accounts/" + idAccount,
+            async: false,
+            success: () => {
+                callMessagePopup("Успех", "Аккаунт успешно удален")
+                deleteFromStaffCache(idAccount);
+                fillStaffTable();
+            },
+            error: () => {
+                callMessagePopup("Ошибка", "Ошибка удаления аккаунта")
+            }
+        })
     }
 
     function bindStaffButtons() {
         $("#create-account").on('click', () => {
             $("#accountModal").modal('show');
 
-            fillAccountPopupSelectors()
+            fillAccountPopupSelectors(true)
 
             $("#confirm-account-btn").unbind();
             $("#confirm-account-btn").on("click", () => {
@@ -143,33 +291,40 @@
         })
     }
 
-    function fillAccountPopupSelectors() {
+    function fillAccountPopupSelectors(isCreate) {
         loadDepartments();
         loadPositions();
         const $departmentSelect = $("#department-select-acc-popup");
         const $positionSelect = $("#position-select-acc-popup");
         const $roleSelect = $("#role-select-acc-popup");
 
+        const $departmentChangeSelect = $("#department-change-select-popup");
+        const $positionChangeSelect = $("#position-change-select-popup");
+        const $roleChangeSelect = $("#role-change-select-popup");
+
         $positionSelect.html('')
         $departmentSelect.html('');
         $roleSelect.html('');
+        $departmentChangeSelect.html('');
+        $positionChangeSelect.html('');
+        $roleChangeSelect.html('');
 
         const departmentCache = getDepartmentsCache();
         departmentCache.forEach(department => {
             const option = $("<option value='" + department.idDepartment + "'>" + department.name + "</option>");
-            $departmentSelect.append(option);
+            isCreate ? $departmentSelect.append(option) : $departmentChangeSelect.append(option)
         })
 
         const positionsCache = getPositionsCache();
         positionsCache.forEach(position => {
             const option = $("<option value='" + position.idPosition + "'>" + position.name + "</option>");
-            $positionSelect.append(option);
+            isCreate ? $positionSelect.append(option) : $positionChangeSelect.append(option);
         })
 
         const roleCache = getRoleCache();
         roleCache.forEach(role => {
             const option = $("<option value='" + role.idRole + "'>" + role.name + "</option>");
-            $roleSelect.append(option);
+            isCreate ? $roleSelect.append(option) : $roleChangeSelect.append(option);
         })
     }
 
