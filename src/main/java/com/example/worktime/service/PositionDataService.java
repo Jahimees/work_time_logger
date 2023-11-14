@@ -9,16 +9,28 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "Position"
+ */
 @Service
 @RequiredArgsConstructor
 public class PositionDataService {
 
     private final PositionRepository positionRepository;
 
+    /**
+     * Производит поиск всех должностей в базе
+     * @return список всех должностей
+     */
     public List<Position> findAll() {
         return positionRepository.findAll();
     }
 
+    /**
+     * Создает новую должность в базе
+     * @param position новая должность
+     * @return сохраненная должность
+     */
     public Position create(Position position) {
         if (positionRepository.existsByName(position.getName())) {
             throw new AlreadyExistsException("Department already exists");
@@ -27,6 +39,11 @@ public class PositionDataService {
         return positionRepository.saveAndFlush(position);
     }
 
+    /**
+     * Производит частичное изменение должности в базе
+     * @param position изменяемая должность
+     * @return измененная должность
+     */
     public Position patch(Position position) {
         Optional<Position> positionOptional = positionRepository.findByName(position.getName());
 
@@ -41,7 +58,11 @@ public class PositionDataService {
         return positionRepository.saveAndFlush(position);
     }
 
-    public void delete(int idDepartment) {
-        positionRepository.deleteById(idDepartment);
+    /**
+     * Удаляет должность по её id
+     * @param idPosition id должности
+     */
+    public void delete(int idPosition) {
+        positionRepository.deleteById(idPosition);
     }
 }

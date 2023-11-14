@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * Сущность, которая отвечает за хранение авторизованного пользователя
+ */
 @Data
 public class CustomPrincipal implements Serializable {
 

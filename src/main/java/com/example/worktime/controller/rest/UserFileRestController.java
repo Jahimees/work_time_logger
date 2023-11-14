@@ -16,12 +16,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Rest-контроллер для управления загрузкой пользовательских файлов
+ */
 @RestController
 @RequiredArgsConstructor
 public class UserFileRestController {
 
     private final UploadFileService uploadFileService;
 
+    /**
+     * Обрабатывает запрос загрузки файла
+     *
+     * @param idAccount id владельца файла (того, кто загружает)
+     * @param file объект самого файла
+     * @param idDocument необязательный параметр, определяющий тип файла
+     * @return созданный объект файла
+     */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/accounts/{idAccount}/user_files")
     public ResponseEntity<CustomEntity> handleFileUpload(@PathVariable int idAccount,
@@ -36,7 +47,6 @@ public class UserFileRestController {
                 document = new Document();
                 //saveAsImage
             }
-
 
             return new ResponseEntity<>(document, HttpStatus.CREATED);
         } else {

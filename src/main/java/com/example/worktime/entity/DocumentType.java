@@ -5,6 +5,9 @@ import lombok.Data;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей document_type в базе данных
+ */
 @Data
 @Entity(name = DOCUMENT_TYPE)
 public class DocumentType implements CustomEntity {

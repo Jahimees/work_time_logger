@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "Account"
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -22,14 +25,31 @@ public class AccountDataService {
     private final DepartmentDataService departmentDataService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * Ищет все аккаунты в базе
+     *
+     * @return список всех аккаунтов
+     */
     public List<Account> findAll() {
         return accountRepository.findAll();
     }
 
+    /**
+     * Ищет аккаунт по его id
+     *
+     * @param idAccount id пользователя
+     * @return найденный аккаунт
+     */
     public Optional<Account> findById(int idAccount) {
         return accountRepository.findById(idAccount);
     }
 
+    /**
+     * Ищет всех пользователей по id отдела
+     *
+     * @param idDepartment id отдела
+     * @return список всех аккаунтов отдела
+     */
     public List<Account> findByIdDepartment(int idDepartment) {
         Optional<Department> departmentOptional = departmentDataService.findById(idDepartment);
 
@@ -40,10 +60,23 @@ public class AccountDataService {
         return accountRepository.findByDepartment(departmentOptional.get());
     }
 
+    /**
+     * Ищет пользователя по его имени пользователя (логину)
+     *
+     * @param username имя пользователя
+     * @return найденный пользователь
+     */
     public Optional<Account> findByUsername(String username) {
         return accountRepository.findByUsername(username);
     }
 
+    /**
+     * Производит изменение параметров аккаунта. Метод используется, когда пользователь
+     * сам изменяет свои параметры, а не при помощи кадровика
+     *
+     * @param accountFromClient новые данные аккаунта
+     * @return сохраненный объект аккаунта
+     */
     public Account patchSelfAccount(Account accountFromClient) {
         Optional<Account> accountOptional = accountRepository.findById(accountFromClient.getIdAccount());
 
@@ -84,6 +117,13 @@ public class AccountDataService {
         return accountRepository.save(accountDb);
     }
 
+    /**
+     * Производит изменение аккаунта. Используется, когда
+     * аккаунт изменяет кадровик
+     *
+     * @param accountFromClient новый объект аккаунта
+     * @return измененный объект аккаунта
+     */
     public Account patchEmployerAccount(Account accountFromClient) {
         Optional<Account> accountOptional = findById(accountFromClient.getIdAccount());
 
@@ -98,23 +138,23 @@ public class AccountDataService {
             EmployerDetails employerDetailsFromDb = accountFromDb.getEmployerDetails();
 
             if (employerDetailsFromClient.getFirstName() != null
-            && !employerDetailsFromClient.getFirstName()
+                    && !employerDetailsFromClient.getFirstName()
                     .equals(employerDetailsFromDb.getFirstName())) {
                 employerDetailsFromDb.setFirstName(employerDetailsFromClient.getFirstName());
             }
 
             if (employerDetailsFromClient.getLastName() != null
-            && !employerDetailsFromClient.getLastName().equals(employerDetailsFromDb.getLastName())) {
+                    && !employerDetailsFromClient.getLastName().equals(employerDetailsFromDb.getLastName())) {
                 employerDetailsFromDb.setLastName(employerDetailsFromClient.getLastName());
             }
 
             if (employerDetailsFromClient.getPhone() != null
-            && !employerDetailsFromClient.getPhone().equals(employerDetailsFromDb.getPhone())) {
+                    && !employerDetailsFromClient.getPhone().equals(employerDetailsFromDb.getPhone())) {
                 employerDetailsFromDb.setPhone(employerDetailsFromClient.getPhone());
             }
 
             if (employerDetailsFromClient.getAddress() != null
-            && !employerDetailsFromClient.getAddress().equals(employerDetailsFromDb.getAddress())) {
+                    && !employerDetailsFromClient.getAddress().equals(employerDetailsFromDb.getAddress())) {
                 employerDetailsFromDb.setAddress(employerDetailsFromClient.getAddress());
             }
         }
@@ -147,6 +187,12 @@ public class AccountDataService {
         return accountRepository.saveAndFlush(accountFromDb);
     }
 
+    /**
+     * Создает аккаунт в базе данных
+     *
+     * @param account новый аккаунт
+     * @return созданный в базе аккаунт
+     */
     public Account createAccount(Account account) {
         if (accountRepository.existsByUsername(account.getUsername())) {
             throw new AlreadyExistsException("Account with the same username already exists");
@@ -159,6 +205,11 @@ public class AccountDataService {
         return accountRepository.saveAndFlush(account);
     }
 
+    /**
+     * Удаляет аккаунт из базы данных по id
+     *
+     * @param idAccount id аккаунта
+     */
     public void deleteAccountById(int idAccount) {
         accountRepository.deleteById(idAccount);
     }

@@ -12,6 +12,9 @@ import java.util.List;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей account в базе данных
+ */
 @Data
 @Entity(name = ACCOUNT)
 public class Account implements UserDetails, Serializable, CustomEntity {

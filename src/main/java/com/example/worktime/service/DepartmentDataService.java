@@ -9,20 +9,40 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "Department"
+ */
 @Service
 @RequiredArgsConstructor
 public class DepartmentDataService {
 
     private final DepartmentRepository departmentRepository;
 
+    /**
+     * Ищет отдел по его id
+     *
+     * @param idDepartment id отдела
+     * @return найденный отдел
+     */
     public Optional<Department> findById(int idDepartment) {
         return departmentRepository.findById(idDepartment);
     }
 
+    /**
+     * Производит поиск всех отделов
+     *
+     * @return список всех отделов
+     */
     public List<Department> findAll() {
         return departmentRepository.findAll();
     }
 
+    /**
+     * Создает новый отдел в базе
+     *
+     * @param department новый отдел
+     * @return созданный отдел
+     */
     public Department create(Department department) {
         if (departmentRepository.existsByName(department.getName())) {
             throw new AlreadyExistsException("Department already exists");
@@ -31,6 +51,12 @@ public class DepartmentDataService {
         return departmentRepository.saveAndFlush(department);
     }
 
+    /**
+     * Изменяет существующий отдел
+     *
+     * @param department изменяемый отдел
+     * @return измененный отдел
+     */
     public Department patch(Department department) {
         Optional<Department> departmentOptional = departmentRepository.findByName(department.getName());
 
@@ -45,6 +71,11 @@ public class DepartmentDataService {
         return departmentRepository.saveAndFlush(department);
     }
 
+    /**
+     * Удаляет отдел по его id
+     *
+     * @param idDepartment id отдела
+     */
     public void delete(int idDepartment) {
         departmentRepository.deleteById(idDepartment);
     }

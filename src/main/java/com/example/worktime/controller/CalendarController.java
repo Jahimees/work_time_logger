@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Контроллер, который загружает сам календарь  на странице "рабочее время"
+ */
 @Controller
 public class CalendarController {
 

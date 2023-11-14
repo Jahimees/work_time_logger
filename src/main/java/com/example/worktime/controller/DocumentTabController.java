@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * Контроллер, который возвращает страницу документов
+ */
 @Controller
 public class DocumentTabController {
 

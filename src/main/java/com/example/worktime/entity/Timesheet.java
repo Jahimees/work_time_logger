@@ -9,6 +9,9 @@ import java.util.List;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей timesheet в базе данных
+ */
 @Data
 @Entity(name = TIMESHEET)
 @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="idTimesheet")

@@ -9,12 +9,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Rest-контроллер для управления сущностями типа роль
+ */
 @RestController
 @RequiredArgsConstructor
 public class RoleRestController {
 
     private final RoleDataService roleDataService;
 
+    /**
+     * Возвращает все возможные роли
+     *
+     * @return список ролей
+     */
     @GetMapping("/roles")
     public ResponseEntity<List<? extends CustomEntity>> findAllRoles() {
         return ResponseEntity.ok(roleDataService.findAll());

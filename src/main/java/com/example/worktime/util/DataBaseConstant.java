@@ -1,5 +1,8 @@
 package com.example.worktime.util;
 
+/**
+ * Константы имен базны данных
+ */
 public final class DataBaseConstant {
     private DataBaseConstant() {}
 

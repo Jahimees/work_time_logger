@@ -5,6 +5,9 @@ import lombok.Data;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей position в базе данных
+ */
 @Data
 @Entity(name = POSITION)
 public class Position implements CustomEntity {

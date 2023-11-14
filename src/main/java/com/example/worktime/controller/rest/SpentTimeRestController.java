@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Rest-контроллер для управления запросами к объектам типа "Затраченное время"
+ */
 @RestController
 @RequiredArgsConstructor
 public class SpentTimeRestController {
@@ -22,6 +25,12 @@ public class SpentTimeRestController {
     private final SpentTimeDataService spentTimeDataService;
     private final TimesheetDayDataService timesheetDayDataService;
 
+    /**
+     * Производит поиск всех объектов "Затраченное время" по конкретному дню табеля
+     *
+     * @param idTimesheetDay id дня табеля
+     * @return список объектов затраченного времени
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/timesheet-days/{idTimesheetDay}/spent-times")
     public ResponseEntity<List<? extends CustomEntity>> findAllByIdTimesheetDay(
@@ -30,6 +39,14 @@ public class SpentTimeRestController {
         return ResponseEntity.ok(spentTimeDataService.findAllByIdTimesheetDay(idTimesheetDay));
     }
 
+    /**
+     * Принимает запрос на создание нового объекта о затраченном времени. Доступ только у начальника
+     * отдела.
+     *
+     * @param idTimesheetDay id дня, в котором создается объект
+     * @param spentTime создаваемый объект
+     * @return созданный объект
+     */
     @PreAuthorize("hasRole('BOSS')")
     @PostMapping("/timesheet-days/{idTimesheetDay}/spent-times")
     public ResponseEntity<CustomEntity> create(@PathVariable int idTimesheetDay,
@@ -48,6 +65,11 @@ public class SpentTimeRestController {
         return ResponseEntity.ok(spentTimeDataService.create(spentTime));
     }
 
+    /**
+     * Удаляет затраченное время. Доступно только начальнику отдела
+     *
+     * @param idSpentTime id затраченного времени
+     */
     @PreAuthorize("hasRole('BOSS')")
     @DeleteMapping("/spent-times/{idSpentTime}")
     public ResponseEntity<CustomEntity> delete(@PathVariable int idSpentTime) {
@@ -59,6 +81,12 @@ public class SpentTimeRestController {
         ), HttpStatus.OK);
     }
 
+    /**
+     * Производит поиск всех объектов затраченного времени конкретного пользователя
+     *
+     * @param idAccount id пользователя
+     * @return список всех объектов затраченного времени
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/accounts/{idAccount}/spent-times")
     public ResponseEntity<List<? extends CustomEntity>> findAllByIdAccount(@PathVariable int idAccount) {

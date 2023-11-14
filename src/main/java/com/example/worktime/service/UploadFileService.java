@@ -11,6 +11,9 @@ import java.io.*;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Сервис отвечающий за загрузку и сохранение файлов в системе
+ */
 @Service
 @RequiredArgsConstructor
 public class UploadFileService {
@@ -20,7 +23,14 @@ public class UploadFileService {
     @Value("${url.user.folder}")
     private String USER_FOLDER;
 
-
+    /**
+     * Загружает документ в систмеу и сохраняет в папку /src/main/webapp/user/{idAccount}/docs/{idDocument}
+     *
+     * @param idAccount id пользователя
+     * @param idDocument id документа
+     * @param multipartFile объект файла
+     * @return связанный объект документа
+     */
     public Document uploadDocument(int idAccount, int idDocument, MultipartFile multipartFile) {
         Optional<Document> documentOptional = documentDataService.findById(idDocument);
 

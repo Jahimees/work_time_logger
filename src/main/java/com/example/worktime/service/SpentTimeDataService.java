@@ -1,6 +1,5 @@
 package com.example.worktime.service;
 
-import com.example.worktime.entity.Account;
 import com.example.worktime.entity.SpentTime;
 import com.example.worktime.entity.SpentTimeType;
 import com.example.worktime.entity.TimesheetDay;
@@ -13,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "SpentTime"
+ */
 @Service
 @RequiredArgsConstructor
 public class SpentTimeDataService {
@@ -21,6 +23,12 @@ public class SpentTimeDataService {
     private final TimesheetDayDataService timesheetDayDataService;
     private final SpentTimeTypeDataService spentTimeTypeDataService;
 
+    /**
+     * Ищет все объекты затраченного времени по id рабочего дня табеля
+     *
+     * @param idTimesheetDay id рабочего дня табеля
+     * @return список всех объектов затраченного времени
+     */
     public List<SpentTime> findAllByIdTimesheetDay(int idTimesheetDay) {
         Optional<TimesheetDay> optionalTimesheetDay = timesheetDayDataService.findById(idTimesheetDay);
 
@@ -36,6 +44,12 @@ public class SpentTimeDataService {
         return spentTimeList;
     }
 
+    /**
+     * Создает новый объект затраченного времени в базе
+     *
+     * @param spentTime создаваемый объект
+     * @return созданный объект затраченного времени
+     */
     public SpentTime create(SpentTime spentTime) {
         SpentTime createdSpentTime = spentTimeRepository.saveAndFlush(spentTime);
         createdSpentTime.getTimesheetDay();
@@ -52,10 +66,21 @@ public class SpentTimeDataService {
         return createdSpentTime;
     }
 
+    /**
+     * Удаляет объект затраченного времени из базы
+     *
+     * @param idSpentTime id затраченного времени
+     */
     public void delete(int idSpentTime) {
         spentTimeRepository.deleteById(idSpentTime);
     }
 
+    /**
+     * Ищет все объекты затраченного времени в базе по id пользователя
+     *
+     * @param idAccount id пользователя
+     * @return список всех объектов затраченного времени
+     */
     public List<SpentTime> findAllByIdAccount(int idAccount) {
 
         List<TimesheetDay> timesheetDayList = timesheetDayDataService.findAllByIdAccount(idAccount);

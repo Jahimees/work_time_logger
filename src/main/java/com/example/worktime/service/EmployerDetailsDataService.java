@@ -1,30 +1,48 @@
 package com.example.worktime.service;
 
-import com.example.worktime.entity.CustomResponseEntity;
 import com.example.worktime.entity.EmployerDetails;
 import com.example.worktime.repository.EmployerDetailsRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "EmployerDetails"
+ */
 @Service
 @RequiredArgsConstructor
 public class EmployerDetailsDataService {
 
     private final EmployerDetailsRepository employerDetailsRepository;
 
+    /**
+     * Ищет данные пользователя по id
+     *
+     * @param idEmployerDetails id данных пользователя
+     * @return найденные данные пользователя
+     */
     public Optional<EmployerDetails> findById(int idEmployerDetails) {
         return employerDetailsRepository.findById(idEmployerDetails);
     }
 
+    /**
+     * Создает новые данные пользователя. Создаются в момент создания аккаунта
+     *
+     * @param employerDetails данные пользователя
+     * @return сохраненные данные пользователя
+     */
     public EmployerDetails create(EmployerDetails employerDetails) {
         return employerDetailsRepository.saveAndFlush(employerDetails);
     }
 
+    /**
+     * Частично изменяет данные пользователя в базе данных
+     *
+     * @param employerDetails новые пользовательские данные
+     * @return обновленные пользовательские данные
+     */
     public EmployerDetails patch(EmployerDetails employerDetails) {
         Optional<EmployerDetails> employerDetailsOptional = findById(employerDetails.getIdEmployerDetails());
 

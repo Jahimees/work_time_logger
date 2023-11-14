@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Rest-контроллер для управления документами
+ */
 @RestController
 @RequiredArgsConstructor
 public class DocumentRestController {
@@ -22,6 +25,13 @@ public class DocumentRestController {
     private final AccountDataService accountDataService;
     private final DocumentDataService documentDataService;
 
+    /**
+     * Принимает запрос на создание документа в системе и потом отправляет его на клиент
+     *
+     * @param document создаваемый документ
+     * @param idAccount id владельца
+     * @return
+     */
     @PostMapping("/accounts/{idAccount}/documents")
     public ResponseEntity<CustomEntity> createDocument(@RequestBody Document document,
                                                        @PathVariable int idAccount) {

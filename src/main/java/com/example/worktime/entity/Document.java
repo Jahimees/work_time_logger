@@ -7,6 +7,9 @@ import java.sql.Timestamp;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей document в базе данных
+ */
 @Data
 @Entity(name = DOCUMENT)
 public class Document implements CustomEntity {

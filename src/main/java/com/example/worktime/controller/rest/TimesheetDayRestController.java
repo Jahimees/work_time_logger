@@ -9,11 +9,15 @@ import com.example.worktime.service.TimesheetDayDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Rest-контроллер для управления объектами типа "день в табеле"
+ */
 @RestController
 @RequiredArgsConstructor
 public class TimesheetDayRestController {
@@ -21,11 +25,24 @@ public class TimesheetDayRestController {
     private final TimesheetDataService timesheetDataService;
     private final TimesheetDayDataService timesheetDayDataService;
 
+    /**
+     * Производит поиск всех рабочих дней по id пользователя
+     *
+     * @param idAccount id пользователя
+     * @return список всех рабочих дней
+     */
     @GetMapping("/timesheet-days")
     public ResponseEntity<List<? extends CustomEntity>> findTimesheetDaysByIdAccount(@RequestParam int idAccount) {
         return ResponseEntity.ok(timesheetDayDataService.findAllByIdAccount(idAccount));
     }
 
+    /**
+     * Производит создание нового рабочего табеля и рабочих дней сотрудника
+     *
+     * @param timesheet табель с информацией о сотруднике и рабочих днях
+     * @return созданный рабочий табель
+     */
+    @PreAuthorize("hasRole('HR')")
     @PostMapping("/timesheet-days")
     public ResponseEntity<CustomEntity> createDays(@RequestBody Timesheet timesheet) {
         Optional<Timesheet> timesheetOptional;
@@ -51,6 +68,11 @@ public class TimesheetDayRestController {
         return ResponseEntity.ok(newTimesheet);
     }
 
+    /**
+     * Удаляет конкретный табель работника из базы
+     *
+     * @param timesheet удаляемый табель
+     */
     @DeleteMapping("/timesheet-days")
     public ResponseEntity<CustomEntity> deleteTimesheetDay(@RequestBody Timesheet timesheet) {
         if (timesheet.getTimesheetDayList().isEmpty()) {

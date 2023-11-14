@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "Document"
+ */
 @Service
 @RequiredArgsConstructor
 public class DocumentDataService {
@@ -22,6 +25,12 @@ public class DocumentDataService {
     private final TimesheetDataService timesheetDataService;
     private final AccountDataService accountDataService;
 
+    /**
+     * Создает информацию о новом документе в системе.
+     *
+     * @param document объект документа
+     * @return созданный документ
+     */
     @Transactional
     public Document create(Document document) {
         document.setCreationDate(Timestamp.valueOf(LocalDateTime.now()));
@@ -49,18 +58,41 @@ public class DocumentDataService {
         return documentRepository.saveAndFlush(document);
     }
 
+    /**
+     * Производит поиск документа по id
+     *
+     * @param idDocument id документа
+     * @return найденный документ
+     */
     public Optional<Document> findById(int idDocument) {
         return documentRepository.findById(idDocument);
     }
 
+    /**
+     * Обновляет документ в базе
+     *
+     * @param document обновляемый документ
+     * @return обновленный документ
+     */
     public Document update(Document document) {
         return documentRepository.saveAndFlush(document);
     }
 
+    /**
+     * Производит поиск всех документов
+     *
+     * @return список всех документов
+     */
     public List<Document> findAll() {
         return documentRepository.findAll();
     }
 
+    /**
+     * Частично обновляет документ в системе. А именно служит для подтверждения/снятия подтверждения с документа
+     *
+     * @param document обновляемый документ
+     * @return обновленный документ
+     */
     public Document patchDocument(Document document) {
         Optional<Document> documentOptional = findById(document.getIdDocument());
 
@@ -83,6 +115,12 @@ public class DocumentDataService {
         return documentRepository.saveAndFlush(docFromDb);
     }
 
+    /**
+     * Производит поиск документов по id пользователя
+     *
+     * @param idAccount id пользователя
+     * @return список всех документов пользователя
+     */
     public List<Document> findByIdAccount(int idAccount) {
         Optional<Account> accountOptional = accountDataService.findById(idAccount);
 

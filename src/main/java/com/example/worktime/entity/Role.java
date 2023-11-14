@@ -6,6 +6,9 @@ import org.springframework.security.core.GrantedAuthority;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей role в базе данных
+ */
 @Entity(name = ROLE)
 @Data
 public class Role implements GrantedAuthority, CustomEntity {

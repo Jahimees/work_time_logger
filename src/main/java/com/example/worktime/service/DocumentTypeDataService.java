@@ -7,12 +7,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис отвечающий за бизнес-логику с объектами типа "DocumentType"
+ */
 @Service
 @RequiredArgsConstructor
 public class DocumentTypeDataService {
 
     private final DocumentTypeRepository documentTypeRepository;
 
+    /**
+     * Производит поиск всех типов документов
+     *
+     * @return список всех типов документов
+     */
     public List<DocumentType> findAll() {
         return documentTypeRepository.findAll();
     }

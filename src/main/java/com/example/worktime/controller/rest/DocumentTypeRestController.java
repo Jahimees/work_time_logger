@@ -10,12 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Rest-контроллер для управления типами документов. Только предоставляет их список
+ */
 @RestController
 @RequiredArgsConstructor
 public class DocumentTypeRestController {
 
     private final DocumentTypeDataService documentTypeDataService;
 
+    /**
+     * Предоставляет список всех типов документов
+     *
+     * @return список типов документов
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/document-types")
     public ResponseEntity<List<? extends CustomEntity>> findAllDocumentTypes() {

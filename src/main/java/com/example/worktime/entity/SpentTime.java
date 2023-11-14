@@ -5,6 +5,9 @@ import lombok.Data;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей spent_time в базе данных
+ */
 @Data
 @Entity(name = SPENT_TIME)
 public class SpentTime implements CustomEntity {

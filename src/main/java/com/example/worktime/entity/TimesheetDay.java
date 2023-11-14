@@ -13,6 +13,9 @@ import java.sql.Timestamp;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей timesheet_day в базе данных
+ */
 @Data
 @Entity(name = TIMESHEET_DAY)
 @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="idTimesheetDay")

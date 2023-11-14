@@ -10,10 +10,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+/**
+ * Конфигурация модуля Spring Security. Отвечает за настройку авторизации
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -33,21 +34,24 @@ public class WebSecurityConfiguration {
                                 .requestMatchers("/**").permitAll()
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/wlogger")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
+                        .loginProcessingUrl("/login") //Путь по которому происходит авторизация
+                        .defaultSuccessUrl("/wlogger") //путь переадресации после успешной авторизации
+                        .usernameParameter("username") //Параметр "логин"
+                        .passwordParameter("password") //Параметр "пароль"
                         .permitAll()
                 )
                 .logout(logout -> {
                     logout.permitAll();
-                    logout.logoutSuccessUrl("/login");
+                    logout.logoutSuccessUrl("/login"); //Путь по которому приложение перенаправляет при выходе из аккаунта
                 })
                 .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
 
+    /**
+     * Настройка объекта, отвечающего за хэширование паролей
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

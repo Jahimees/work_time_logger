@@ -20,6 +20,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.util.unit.DataSize;
 
+/**
+ * Конфигурационный файл приложения. Здесь настройки связанные с загрузкой файлов, а также
+ * конфигурация по конвертации данных из json в объекты и наоборот при "общении" клиента с сервером
+ */
 @Configuration
 @PropertySource("classpath:application.properties")
 @PropertySource("classpath:constants.properties")

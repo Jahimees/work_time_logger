@@ -5,6 +5,9 @@ import lombok.Data;
 
 import static com.example.worktime.util.DataBaseConstant.*;
 
+/**
+ * Сущность, связанная с таблицей employer_details в базе данных
+ */
 @Data
 @Entity(name = EMPLOYER_DETAILS)
 public class EmployerDetails implements CustomEntity {

@@ -15,12 +15,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Rest-контроллер аккаунта. Принимает запросы по обработке данных аккаунта
+ */
 @RestController
 @RequiredArgsConstructor
 public class AccountRestController {
 
     private final AccountDataService accountDataService;
 
+    /**
+     * Принимает запрос и отправляет данные обо всех аккаунтах на клиент
+     *
+     * @param department необязательный параметр, если нужно отфильтровать аккаунты по отделу
+     * @return список аккаунтов
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/accounts")
     public ResponseEntity<List<? extends CustomEntity>> findAllAccounts(@RequestParam(required = false) Integer department) {
@@ -31,6 +40,12 @@ public class AccountRestController {
         }
     }
 
+    /**
+     * Производит поиск и отправку аккаунта на клиент по его ID
+     *
+     * @param idAccount идентификатор искомого аккаунта
+     * @return найденный аккаунт
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/accounts/{idAccount}")
     public ResponseEntity<CustomEntity> findAccountById(@PathVariable int idAccount) {
@@ -46,6 +61,13 @@ public class AccountRestController {
         return ResponseEntity.ok(accountOptional.get());
     }
 
+    /**
+     * Получает запрос на частичное изменение данных аккаунта и возвращает измененные данные
+     *
+     * @param account новый объект с новыми полями
+     * @param idAccount идентификатор аккаунта
+     * @return измененный объект
+     */
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/accounts/{idAccount}")
     public ResponseEntity<CustomEntity> patchAccount(@RequestBody Account account, @PathVariable int idAccount) {
@@ -79,12 +101,24 @@ public class AccountRestController {
         return ResponseEntity.ok(patchedAccount);
     }
 
+    /**
+     * Создает аккаунт. Доступно только кадровику
+     *
+     * @param account создаваемый объект
+     * @return созданный объект
+     */
     @PreAuthorize("hasRole('HR')")
     @PostMapping("/accounts")
     public ResponseEntity<CustomEntity> createAccount(@RequestBody Account account) {
         return ResponseEntity.ok(accountDataService.createAccount(account));
     }
 
+    /**
+     * Удаляет аккаунт по id. Доступно только кадровику
+     * @param idAccount id удаляемого аккаунта
+     *
+     * @return json ответ об удалении
+     */
     @PreAuthorize("hasRole('HR')")
     @DeleteMapping("/accounts/{idAccount}")
     public ResponseEntity<CustomEntity> deleteAccount(@PathVariable int idAccount) {
