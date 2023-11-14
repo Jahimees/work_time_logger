@@ -1,13 +1,3 @@
-///Функционал Начальника:
-///Загрузка своего отдела в календаре
-///Выбор дня работника и установка затраченного времени
-///Если пропуск - галочка на причину (подтверждено или нет)
-
-///Функционал работника:
-
-///В конце: отчеты за месяц HR'у
-
-
 let startCache;
 let endCache;
 let accountWorkingDays = []
@@ -73,9 +63,33 @@ function loadTimesheetDays(idAccount) {
     })
 }
 
+function convertSpentTimesToEvents(spentTimes) {
+    if (spentTimes.length === 0) {
+        return [];
+    }
+    console.log(spentTimes)
+    const events = [];
+    let timesheetDay;
+    spentTimes.forEach(spentTime => {
+        if (typeof spentTime.timesheetDay != "number") {
+            timesheetDay = spentTime.timesheetDay;
+        }
+        events.push({
+            id: self.crypto.randomUUID(),
+            title: spentTime.spentTimeType.name + " " + spentTime.spentTime + " ч.",
+            type: 'spentTime',
+            start: new Date(timesheetDay.date),
+            end: new Date(timesheetDay.date)
+        })
+    })
+
+    console.log(events)
+    return events;
+}
+
 function convertToEvents(documents) {
     if (documents.length === 0) {
-        return;
+        return [];
     }
     const events = []
     documents.forEach(document => {
@@ -96,9 +110,16 @@ var initializeCalendar = function (idAccount) {
 
     loadTimesheetDays(idAccount);
     accDocsCache = loadDocumentsForAccount(idAccount);
-    const docsEvents = convertToEvents(accDocsCache);
+    const events = convertToEvents(accDocsCache);
     // TODO ВСЕ SPENT TIMES
-    loadSpentTimes()
+    fullSpentTimesCache = loadSpentTimesForAccount(idAccount);
+    const spentTimesEvents = convertSpentTimesToEvents(fullSpentTimesCache);
+    console.log(spentTimesEvents);
+    if (spentTimesEvents.length != 0) {
+        spentTimesEvents.forEach(spentTime => {
+            events.push(spentTime)
+        })
+    }
 
     $('.calendar').fullCalendar('destroy');
     $('.calendar').fullCalendar({
@@ -113,7 +134,7 @@ var initializeCalendar = function (idAccount) {
         editable: true,
         eventLimit: true, // allow "more" link when too many events
         // create events
-        events: docsEvents,
+        events: events,
         timeFormat: 'H:mm',
         slotLabelFormat: 'H:mm',
         defaultTimedEventDuration: '00:30:00',
@@ -141,6 +162,7 @@ var initializeCalendar = function (idAccount) {
         },
         eventClick: function (calEvent, jsEvent, view) {
             if (calEvent.type === 'document') {
+                console.log(calEvent.type)
                 openDoc(calEvent);
             }
         },
@@ -159,8 +181,8 @@ var initializeCalendar = function (idAccount) {
 
     getCalendars();
     disableEnter();
-    appendButtons(idAccount);
     $('#calendar1').fullCalendar('option', 'height', $(window).height() - 250);
+    appendButtons(idAccount);
 }
 
 function openFillTimesheetDay() {
@@ -186,15 +208,15 @@ function openFillTimesheetDay() {
         $spentTimeTypeSelect.append(option);
     });
 
-    loadSpentTimes(timesheetDay.idTimesheetDay);
+    loadSpentTimesForDay(timesheetDay.idTimesheetDay);
     fillSpentTimeTable();
 
+    $("#confirm-spent-time-btn").unbind();
     $("#confirm-spent-time-btn").on('click', () => {
         const idSpentTimeType = $("#spent-time-type-select").val();
         let spentTime = $("#spent-time-input").val();
 
         if (!/^\d{1,3}(?:\.\d{1,2})?$/.test(spentTime)) {
-            console.log(/^\d{1,3}(?:\.\d{1})?$/.test(spentTime));
             $("#spent-time-error-lbl").show()
             return;
         } else {
@@ -205,7 +227,6 @@ function openFillTimesheetDay() {
         createSpentTime(timesheetDay.idTimesheetDay, idSpentTimeType, spentTime)
     })
 
-    console.log(timesheetDay);
     $("#spentTimeModal").modal('show');
 }
 
@@ -231,7 +252,9 @@ function createSpentTime(idTimesheetDay, idSpentTimeType, spentTime) {
         success: (data) => {
             $("#save-error").hide();
             spentTimesCache.push(data);
+            fullSpentTimesCache.push(data);
             setTimeout(fillSpentTimeTable(), 100);
+            initializeCalendar(currentIdAccount);
         },
         error: () => {
             $("#save-error").show();
@@ -240,8 +263,10 @@ function createSpentTime(idTimesheetDay, idSpentTimeType, spentTime) {
 }
 
 let spentTimesCache;
+let fullSpentTimesCache;
 
-function loadSpentTimes(idTimesheetDay) {
+function loadSpentTimesForDay(idTimesheetDay) {
+    console.log(idTimesheetDay)
     $.ajax({
         method: "get",
         url: "/timesheet-days/" + idTimesheetDay + "/spent-times",
@@ -260,15 +285,43 @@ function loadSpentTimes(idTimesheetDay) {
     return spentTimesCache
 }
 
+function loadSpentTimesForAccount(idAccount) {
+    $.ajax({
+        method: "get",
+        url: "/accounts/" + idAccount + "/spent-times",
+        contentType: "application/json",
+        dataType: "json",
+        async: false,
+        success: (data) => {
+            fullSpentTimesCache = data;
+            console.log(fullSpentTimesCache)
+        },
+        error: () => {
+
+            callMessagePopup("Ошибка", "Невозможно загрузить данные")
+        }
+    })
+
+    return fullSpentTimesCache
+}
+
 function deleteSpentTimeFromCache(idSpentTime) {
     let index = -1;
+    let fullIndex = -1;
     spentTimesCache.forEach(spentTime => {
         if (spentTime.idSpentTime === idSpentTime) {
             index = spentTimesCache.indexOf(spentTime);
         }
     })
 
+    fullSpentTimesCache.forEach(spentTime => {
+        if (spentTime.idSpentTime === idSpentTime) {
+            fullIndex = fullSpentTimesCache.indexOf(spentTime);
+        }
+    })
+
     spentTimesCache.splice(index, 1);
+    fullSpentTimesCache.splice(fullIndex, 1);
 }
 
 function fillSpentTimeTable() {
@@ -300,6 +353,7 @@ function deleteSpentTime(idSpentTime) {
         success: () => {
             deleteSpentTimeFromCache(idSpentTime);
             fillSpentTimeTable();
+            initializeCalendar(currentIdAccount);
         },
         error: () => {
             $("#spentTimeModal").modal('hide');
@@ -348,6 +402,7 @@ function appendButtons(idAccountEmployer) {
 
     if (currentAccount.role.name === "ROLE_BOSS" &&
         currentAccount.department.idDepartment === employerAccount.department.idDepartment) {
+        $("#fill-timesheet-day-brn").unbind();
         let buttonDay = $("<button id='fill-timesheet-day-brn' class='fc-button fc-state-default' type='button'" +
             "onclick='openFillTimesheetDay()'>" +
             "Заполнить день</button>");

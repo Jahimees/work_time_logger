@@ -5,7 +5,6 @@
 </div>
 <div class="tab-container">
     <div class="setting-container">
-        <div>Фото</div>
         <div class="setting-box">
             <div><b>Основная информация</b></div>
             <div>Имя</div>
@@ -45,6 +44,7 @@
     $(document).ready(() => {
         loadUser(${idAccount});
         fillSettingTab();
+        bindButtons();
     })
 
 </script>

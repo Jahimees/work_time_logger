@@ -6,7 +6,7 @@
 
 <html>
 <head>
-    <title>Title</title>
+    <title>Work time logger</title>
 
     <link href="../css/main.css" rel="stylesheet">
     <link href="../css/tab.css" rel="stylesheet">
@@ -19,8 +19,8 @@
 </div>
 <div class="inline-menu-box">
     <div class="left-menu-bar">
-        <div class="medium-title m-10-px white-color" id="menu-name-placeholder">Тут имя чела</div>
-        <div class="lower-title m-10-px white-color" id="menu-role-placeholder">Тут должность чела</div>
+        <div class="medium-title m-10-px white-color" id="menu-name-placeholder">Имя</div>
+        <div class="lower-title m-10-px white-color" id="menu-role-placeholder">Должность</div>
         <div onclick="openTab('setting', ${idAccount})" class="menu-button">Параметры</div>
         <div onclick="openTab('document', ${idAccount})" class="menu-button">Документы</div>
         <div onclick="openTab('timesheet', ${idAccount})" class="menu-button">Рабочее время</div>
@@ -36,10 +36,8 @@
         ${idAccount}
     </div>
     <sec:authorize access="hasRole('ROLE_EMPLOYER')">
-        Работник
     </sec:authorize>
     <sec:authorize access="hasRole('ROLE_BOSS')">
-        Начальник
     </sec:authorize>
 </div>
 <jsp:include page="common/message_popup.jsp"/>
@@ -53,7 +51,6 @@
 </body>
 
 </html>
-
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"

@@ -1,51 +1,55 @@
 {
     let accountCache
 
-    $("#save-credentials").on("click", () => {
-        const data = {
-            idAccount: accountCache.idAccount,
-            username: $("#username-input").val(),
-            password: $("#password-input").val()
-        }
-
-        $.ajax({
-            method: "patch",
-            url: "/accounts/" + accountCache.idAccount,
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: "json",
-            success: (data) => {
-                accountCache = data;
-                callMessagePopup("Успех", "Данные успешно обновлены");
-                fillSettingTab();
-            },
-            error: () => {
-                callMessagePopup("Ошибка", "Что-то пошло не так. Возможно пользователь с таким именем существует")
+    function bindButtons() {
+        $("#save-credentials").unbind()
+        $("#save-credentials").on("click", () => {
+            const data = {
+                idAccount: accountCache.idAccount,
+                username: $("#username-input").val(),
+                password: $("#password-input").val()
             }
+
+            $.ajax({
+                method: "patch",
+                url: "/accounts/" + accountCache.idAccount,
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: (data) => {
+                    accountCache = data;
+                    callMessagePopup("Успех", "Данные успешно обновлены");
+                    fillSettingTab();
+                },
+                error: () => {
+                    callMessagePopup("Ошибка", "Что-то пошло не так. Возможно пользователь с таким именем существует")
+                }
+            })
         })
-    })
 
-    $("#save-contacts").on("click", () => {
-        const data = {
-            idEmployerDetails: accountCache.employerDetails.idEmployerDetails,
-            phone: $("#phone-input").val(),
-            about: $("#about-input").val(),
-            address: $("#address-input").val()
-        }
-
-        $.ajax({
-            method: "patch",
-            url: "/employer-details/" + accountCache.employerDetails.idEmployerDetails,
-            data: JSON.stringify(data),
-            success: (data) => {
-                accountCache.employerDetails = data;
-                callMessagePopup("Успех", "Изменения прошли успешно");
-            },
-            error: () => {
-                callMessagePopup("Ошибка", "Невозможно сохранить данные");
+        $("#save-contacts").unbind();
+        $("#save-contacts").on("click", () => {
+            const data = {
+                idEmployerDetails: accountCache.employerDetails.idEmployerDetails,
+                phone: $("#phone-input").val(),
+                about: $("#about-input").val(),
+                address: $("#address-input").val()
             }
+
+            $.ajax({
+                method: "patch",
+                url: "/employer-details/" + accountCache.employerDetails.idEmployerDetails,
+                data: JSON.stringify(data),
+                success: (data) => {
+                    accountCache.employerDetails = data;
+                    callMessagePopup("Успех", "Изменения прошли успешно");
+                },
+                error: () => {
+                    callMessagePopup("Ошибка", "Невозможно сохранить данные");
+                }
+            })
         })
-    })
+    }
 
     function loadUserWithoutCaching(idAccount) {
         let response

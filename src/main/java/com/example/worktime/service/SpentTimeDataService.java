@@ -1,5 +1,6 @@
 package com.example.worktime.service;
 
+import com.example.worktime.entity.Account;
 import com.example.worktime.entity.SpentTime;
 import com.example.worktime.entity.SpentTimeType;
 import com.example.worktime.entity.TimesheetDay;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,5 +54,17 @@ public class SpentTimeDataService {
 
     public void delete(int idSpentTime) {
         spentTimeRepository.deleteById(idSpentTime);
+    }
+
+    public List<SpentTime> findAllByIdAccount(int idAccount) {
+
+        List<TimesheetDay> timesheetDayList = timesheetDayDataService.findAllByIdAccount(idAccount);
+
+        List<SpentTime> fullSpentTimes = new ArrayList<>();
+        timesheetDayList.forEach(timesheetDay -> {
+            fullSpentTimes.addAll(spentTimeRepository.findAllByTimesheetDay(timesheetDay));
+        });
+
+        return fullSpentTimes;
     }
 }

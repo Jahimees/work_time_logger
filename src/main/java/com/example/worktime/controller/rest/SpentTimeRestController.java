@@ -58,4 +58,10 @@ public class SpentTimeRestController {
                 "Spent time deleted"
         ), HttpStatus.OK);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/accounts/{idAccount}/spent-times")
+    public ResponseEntity<List<? extends CustomEntity>> findAllByIdAccount(@PathVariable int idAccount) {
+        return ResponseEntity.ok(spentTimeDataService.findAllByIdAccount(idAccount));
+    }
 }

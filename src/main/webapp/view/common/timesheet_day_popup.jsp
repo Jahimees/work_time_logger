@@ -40,7 +40,7 @@
             </div>
             <div class="modal-footer">
                 <button id="decline-btn" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Нет
+                    Закрыть
                 </button>
             </div>
         </div>
