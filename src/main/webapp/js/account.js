@@ -39,6 +39,8 @@
             $.ajax({
                 method: "patch",
                 url: "/employer-details/" + accountCache.employerDetails.idEmployerDetails,
+                contentType: "application/json",
+                dataType: "json",
                 data: JSON.stringify(data),
                 success: (data) => {
                     accountCache.employerDetails = data;
@@ -97,11 +99,13 @@
         $("#menu-name-placeholder").text(accountCache.username);
         $("#menu-role-placeholder").text(role);
 
-
         $("#address-input").val(accountCache.employerDetails.address);
         $("#phone-input").val(accountCache.employerDetails.phone);
         $("#first-name-input").val(accountCache.employerDetails.firstName);
         $("#last-name-input").val(accountCache.employerDetails.lastName);
+        $("#department-input").val(accountCache?.department.name);
+        $("#position-input").val(accountCache?.position.name);
+        $("#about-input").val(accountCache?.employerDetails.about);
 
     }
 
