@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <div class="tab-header">
-    Персонал
+    Рабочее время
 </div>
 <div class="tab-container">
     <div class="row">

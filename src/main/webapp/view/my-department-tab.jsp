@@ -8,8 +8,8 @@
         <table id="my_department_table" class="display" style="width: 100%">
             <thead style="background-color: cadetblue; color: white">
             <tr>
-                <th>Фамилия</th>
                 <th>Имя</th>
+                <th>Фамилия</th>
                 <th>Должность</th>
                 <th>Телефон</th>
             </tr>
